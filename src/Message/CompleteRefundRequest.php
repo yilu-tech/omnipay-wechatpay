@@ -20,15 +20,8 @@ class CompleteRefundRequest extends BaseAbstractRequest
     public function sendData($data)
     {
         $data = $this->getData();
-        $sign = Helper::sign($data, $this->getApiKey());
 
-        $responseData = array();
-
-        if (isset($data['sign']) && $data['sign'] && $sign === $data['sign']) {
-            $responseData['sign_match'] = true;
-        } else {
-            $responseData['sign_match'] = false;
-        }
+        $responseData['sign_match'] = isset($data['key']) && $data['key'] === md5($this->getApiKey());
 
         if ($responseData['sign_match'] && isset($data['refund_status']) && $data['refund_status'] == 'SUCCESS') {
             $responseData['refunded'] = true;
@@ -49,16 +42,14 @@ class CompleteRefundRequest extends BaseAbstractRequest
 
         // 微信: 退款结果对重要的数据进行了加密
         if (isset($data['req_info'])) {
-            $encrypted_data = openssl_decrypt(
-                base64_decode($data['req_info']),
-                'AES-256-ECB',
-                md5($this->getApiKey()),
-                OPENSSL_RAW_DATA
-            );
+            $key = md5($this->getApiKey());
+
+            $encrypted_data = openssl_decrypt(base64_decode($data['req_info']), 'AES-256-ECB', $key, OPENSSL_RAW_DATA);
 
             if (is_string($encrypted_data)) {
                 unset($data['req_info']);
                 $data = array_merge($data, Helper::xml2array($encrypted_data));
+                $data['key'] = $key;
             }
         }
 
