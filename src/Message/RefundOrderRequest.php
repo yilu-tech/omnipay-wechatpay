@@ -40,9 +40,10 @@ class RefundOrderRequest extends BaseAbstractRequest
             'out_refund_no'   => $this->getOutRefundNo(),
             'total_fee'       => $this->getTotalFee(),
             'refund_fee'      => $this->getRefundFee(),
-            'refund_fee_type' => $this->getRefundFee(),//<>
+            'refund_fee_type' => $this->getRefundFeeType(),
             'op_user_id'      => $this->getOpUserId() ?: $this->getMchId(),
             'refund_account'  => $this->getRefundAccount(),
+            'notify_url'      => $this->getNotifyUrl(),
             'nonce_str'       => md5(uniqid()),
         ];
 
@@ -192,6 +193,37 @@ class RefundOrderRequest extends BaseAbstractRequest
         $this->setParameter('refund_fee', $refundFee);
     }
 
+    /**
+     * @return mixed
+     */
+    public function getRefundFeeType()
+    {
+        return $this->getParameter('refund_fee_type');
+    }
+
+    /**
+     * @param mixed $refundFeeType
+     */
+    public function setRefundFeeType($refundFeeType)
+    {
+        $this->setParameter('refund_fee_type', $refundFeeType);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotifyUrl()
+    {
+        return $this->getParameter('notify_url');
+    }
+
+    /**
+     * @param mixed $notifyUrl
+     */
+    public function setNotifyUrl($notifyUrl)
+    {
+        $this->setParameter('notify_url', $notifyUrl);
+    }
 
     /**
      * @return mixed
@@ -200,7 +232,6 @@ class RefundOrderRequest extends BaseAbstractRequest
     {
         return $this->getParameter('refund_fee_type');
     }
-
 
     /**
      * @param mixed $refundFeeType
@@ -250,7 +281,7 @@ class RefundOrderRequest extends BaseAbstractRequest
     /**
      * Send the request with specified data
      *
-     * @param  mixed $data The data to send
+     * @param mixed $data The data to send
      *
      * @return ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -262,9 +293,9 @@ class RefundOrderRequest extends BaseAbstractRequest
         $client = new Client();
 
         $options = [
-            'body'    => $body,
-            'verify'  => true,
-            'cert'    => $this->getCertPath(),
+            'body' => $body,
+            'verify' => true,
+            'cert' => $this->getCertPath(),
             'ssl_key' => $this->getKeyPath(),
         ];
 
